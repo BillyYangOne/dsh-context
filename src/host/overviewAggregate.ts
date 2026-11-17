@@ -364,17 +364,25 @@ export function pageRowOf(row: HostRow, cost: CostSource): OverviewPageRow {
 
 export function groupCountsOf(rows: readonly HostRow[], workspace: WorkspaceState): OverviewGroupCount[] {
   const counts = new Map<string, number>()
+  const tokens = new Map<string, number>()
   let ungrouped = 0
+  let ungroupedTokens = 0
   for (const row of rows) {
-    if (row.group === undefined) ungrouped++
-    else counts.set(row.group, (counts.get(row.group) ?? 0) + 1)
+    if (row.group === undefined) {
+      ungrouped++
+      ungroupedTokens += row.totals.tokens
+    } else {
+      counts.set(row.group, (counts.get(row.group) ?? 0) + 1)
+      tokens.set(row.group, (tokens.get(row.group) ?? 0) + row.totals.tokens)
+    }
   }
   const groups: OverviewGroupCount[] = []
   for (const title of workspace.titles) {
     const count = counts.get(title) ?? 0
-    if (count > 0) groups.push({ key: title, count })
+    const titleTokens = tokens.get(title) ?? 0
+    if (count > 0) groups.push({ key: title, count, ...(titleTokens > 0 ? { tokens: titleTokens } : {}) })
   }
-  if (ungrouped > 0) groups.push({ key: UNGROUPED_KEY, count: ungrouped })
+  if (ungrouped > 0) groups.push({ key: UNGROUPED_KEY, count: ungrouped, ...(ungroupedTokens > 0 ? { tokens: ungroupedTokens } : {}) })
   return groups
 }
 

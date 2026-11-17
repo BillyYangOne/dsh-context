@@ -641,6 +641,7 @@ export interface OverviewPageRow {
 export interface OverviewGroupCount {
   key: string
   count: number
+  tokens?: number
 }
 
 export interface OverviewPage {

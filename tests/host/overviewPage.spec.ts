@@ -36,9 +36,9 @@ describe('dsh-context overview route', () => {
     assert.equal(firstPage.items.length, 12)
     assert.deepEqual(firstPage.items.map(row => row.id), Array.from({ length: 12 }, (_, index) => `s${String(29 - index).padStart(2, '0')}`), 'recent order puts the latest prompt first')
     assert.deepEqual(firstPage.groups, [
-      { key: 'Beta', count: 3 },
-      { key: 'Alpha', count: 2 },
-      { key: '__ungrouped__', count: 25 },
+      { key: 'Beta', count: 3, tokens: 6 },
+      { key: 'Alpha', count: 2, tokens: 9 },
+      { key: '__ungrouped__', count: 25, tokens: 450 },
     ])
     const lastPage = pageOf(await call(harness, { part: 'page', page: 2 }))
     assert.equal(lastPage.index, 2)

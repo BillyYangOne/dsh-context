@@ -153,6 +153,7 @@ body:not([data-ds-dark-theme]) .lc-ov-skill-unit .lc-ov-skill-detail { border: 0
 .lc-ov-chip:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); border-color: var(--dsw-alias-label-secondary); }
 .lc-ov-chip-on, .lc-ov-chip-on:hover { background: var(--dsw-alias-button-primary-fill); border-color: transparent; color: var(--dsw-alias-label-primary-foreground); }
 .lc-ov-chip-n { font-variant-numeric: tabular-nums; opacity: 0.65; font-size: 10px; }
+.lc-ov-chip-t { font-variant-numeric: tabular-nums; opacity: 0.55; font-size: 10px; }
 .lc-ov-chip-on .lc-ov-chip-n { opacity: 0.85; }
 
 .lc-ov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }

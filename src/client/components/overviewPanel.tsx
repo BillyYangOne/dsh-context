@@ -412,7 +412,7 @@ export function makeOverviewPanel(
                               type="button"
                               className={'lc-ov-chip' + (group === c.key ? ' lc-ov-chip-on' : '')}
                               onClick={() => { setGroup(group === c.key ? null : c.key) }}
-                            >{c.key === UNGROUPED_KEY ? t('ov.group.ungrouped') : c.key}<span className="lc-ov-chip-n">{c.count}</span></button>
+                            >{c.key === UNGROUPED_KEY ? t('ov.group.ungrouped') : c.key}<span className="lc-ov-chip-n">{c.count}</span>{c.tokens !== undefined && c.tokens > 0 ? <span className="lc-ov-chip-t">{fmt(c.tokens)}</span> : null}</button>
                           ))}
                         </div>
                       )}

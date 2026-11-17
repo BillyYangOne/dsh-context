@@ -176,7 +176,8 @@ function pageOf(value: unknown): OverviewPage | null {
       const key = group === null ? undefined : stringOf(group.key)
       const groupCount = group === null ? null : nonNegativeOf(group.count)
       if (key === undefined || groupCount === null) continue
-      groups.push({ key, count: groupCount })
+      const groupTokens = group === null ? null : nonNegativeOf(group.tokens)
+      groups.push({ key, count: groupCount, ...(groupTokens === null ? {} : { tokens: groupTokens }) })
     }
   }
   const scopeTotal = nonNegativeOf(data.scopeTotal) ?? total
