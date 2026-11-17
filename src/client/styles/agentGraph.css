@@ -1,6 +1,10 @@
 .lc-agents-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .lc-agents-chip { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--dsw-alias-bg-layer-2); border: var(--lc-line-fine, 1px solid var(--dsw-alias-border-l1)); color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .lc-agents-chip-on { color: var(--dsw-alias-state-success-primary); border-color: color-mix(in srgb, var(--dsw-alias-state-success-primary) 40%, transparent); }
+.lc-agents-chip-filter { font-family: inherit; cursor: pointer; }
+.lc-agents-chip-filter:hover { border-color: var(--dsw-alias-state-success-primary); }
+.lc-agents-chip-filter:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary, var(--color-blue-500)); outline-offset: 1px; }
+.lc-agents-chip-active { background: color-mix(in srgb, var(--dsw-alias-state-success-primary) 14%, transparent); border-color: var(--dsw-alias-state-success-primary); }
 .lc-agents-stage { max-height: 560px; overflow: auto; overscroll-behavior-x: contain; margin: 0 -4px; padding: 0 4px; }
 .lc-agents-stage-all { max-height: none; }
 .lc-agents-toggle { font-family: inherit; cursor: pointer; color: var(--dsw-alias-brand-primary, var(--color-blue-500)); border-color: color-mix(in srgb, var(--dsw-alias-brand-primary, var(--color-blue-500)) 40%, transparent); background: color-mix(in srgb, var(--dsw-alias-brand-primary, var(--color-blue-500)) 8%, transparent); }

@@ -84,7 +84,9 @@ export function makeAgentGraph(
 
     const [internalHover, setInternalHover] = useState<string | null>(null)
     const [showAll, setShowAll] = useState(false)
+    const [runningOnly, setRunningOnly] = useState(false)
     useEffect(() => { setShowAll(false) }, [sessionId])
+    useEffect(() => { setRunningOnly(false) }, [sessionId])
     const hoverId = props.hoverId !== undefined ? props.hoverId : internalHover
     const focusId = hoverId ?? (props.focusId ?? null)
     const pinnedId = props.pinnedId ?? null
@@ -103,15 +105,37 @@ export function makeAgentGraph(
       return containHorizontalOverscroll(el)
     }, [])
 
+    const shown = useMemo(() => {
+      if (forest === null || !runningOnly) return forest
+      const byId = new Map(forest.nodes.map(node => [node.id, node]))
+      const keep = new Set<string>()
+      const keepPath = (startId: string): void => {
+        let node = byId.get(startId)
+        while (node !== undefined && !keep.has(node.id)) {
+          keep.add(node.id)
+          node = node.parentId !== undefined ? byId.get(node.parentId) : undefined
+        }
+      }
+      for (const node of forest.nodes) {
+        if (node.running || node.isCurrent) keepPath(node.id)
+      }
+      const nodes = forest.nodes.filter(node => keep.has(node.id))
+      return {
+        nodes,
+        edges: forest.edges.filter(edge => keep.has(edge.from) && keep.has(edge.to)),
+        solo: nodes.length === 1,
+      }
+    }, [forest, runningOnly])
+
     const layout = useMemo(
-      () => (forest !== null ? layoutForest(forest, stageSize.width, props.compact === true) : null),
-      [forest, props.compact, stageSize.width],
+      () => (shown !== null ? layoutForest(shown, stageSize.width, props.compact === true) : null),
+      [shown, props.compact, stageSize.width],
     )
     const avatarLabels = useMemo(
-      () => forest === null
+      () => shown === null
         ? null
-        : avatarLabelsOf(forest.nodes.map(node => ({ id: node.id, name: avatarIdentityOf(team, node, t).name }))),
-      [forest, team, t],
+        : avatarLabelsOf(shown.nodes.map(node => ({ id: node.id, name: avatarIdentityOf(team, node, t).name }))),
+      [shown, team, t],
     )
     const cardHeight = props.compact === true ? AGENT_CARD_COMPACT_H : AGENT_CARD_H
     const seededHeight = !stageScroll.measured && forest !== null && forest.nodes.length > GRAPH_WINDOW_SEED ? STAGE_H : 0
@@ -120,10 +144,10 @@ export function makeAgentGraph(
       ? { from: stageScroll.scrollTop - GRAPH_OVERSCAN, to: stageScroll.scrollTop + viewportHeight + GRAPH_OVERSCAN }
       : null
     const graph = useMemo(() => {
-      if (forest === null || layout === null) return null
+      if (shown === null || layout === null) return null
       const points = new Map(layout.points.map(point => [point.id, point]))
-      const nodes = new Map(forest.nodes.map(node => [node.id, node]))
-      const entries = forest.nodes.map(node => ({ node, hue: hueOf(node, team, members) }))
+      const nodes = new Map(shown.nodes.map(node => [node.id, node]))
+      const entries = shown.nodes.map(node => ({ node, hue: hueOf(node, team, members) }))
       const hues = new Map(entries.map(entry => [entry.node.id, entry.hue]))
       const visible = band === null ? entries : entries.filter(({ node }) => {
         const point = points.get(node.id)
@@ -134,12 +158,12 @@ export function makeAgentGraph(
         nodes,
         hues,
         visible,
-        lit: neighborhoodOf(forest, litId),
+        lit: neighborhoodOf(shown, litId),
         links: band === null
           ? layout.links
           : layout.links.filter(link => Math.min(link.y1, link.y2) - cardHeight <= band.to && Math.max(link.y1, link.y2) >= band.from),
       }
-    }, [band?.from, band?.to, cardHeight, forest, layout, litId, members, team])
+    }, [band?.from, band?.to, cardHeight, shown, layout, litId, members, team])
     useEffect(() => {
       if (heardFocus === null || graph === null) return
       const point = graph.points.get(heardFocus)
@@ -210,9 +234,19 @@ export function makeAgentGraph(
 
         <div className="lc-agents-chips">
           <span className="lc-agents-chip">{t('agents.chip.count', { n: forest.nodes.length })}</span>
-          <span className={'lc-agents-chip' + (runningCount > 0 ? ' lc-agents-chip-on' : '')}>
-            {t('agents.chip.running', { n: runningCount })}
-          </span>
+          {runningCount > 0
+            ? (
+              <button
+                type="button"
+                className={'lc-agents-chip lc-agents-chip-on lc-agents-chip-filter'
+                  + (runningOnly ? ' lc-agents-chip-active' : '')}
+                aria-pressed={runningOnly}
+                onClick={() => { setRunningOnly(v => !v) }}
+              >
+                {t('agents.chip.running', { n: runningCount })}
+              </button>
+            )
+            : <span className="lc-agents-chip">{t('agents.chip.running', { n: runningCount })}</span>}
           {totalTokens > 0
             ? <span className="lc-agents-chip">{t('agents.chip.tokens', { n: fmt(totalTokens) })}</span>
             : null}

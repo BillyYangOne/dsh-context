@@ -180,6 +180,29 @@ describe('AgentGraph — the family tree', () => {
     await m.unmount()
   })
 
+  test('the running chip filters the graph to live agents and their ancestors', async () => {
+    const View = makeView(new FakeSessions(family()))
+    const m = await mount(h(View, { sessionId: 'root', self: selfStats() }))
+
+    const chip = (): HTMLElement => query<HTMLElement>(m.container, 'button.lc-agents-chip-filter')
+    assert.equal(chip().getAttribute('aria-pressed'), 'false')
+    assert.equal(queryAll(m.container, '.lc-agent-card').length, 3)
+
+    await click(chip())
+    assert.equal(chip().getAttribute('aria-pressed'), 'true')
+    assert.ok(chip().className.includes('lc-agents-chip-active'))
+    assert.deepEqual(
+      queryAll(m.container, '.lc-agent-card').map(card => card.getAttribute('data-agent')),
+      ['root', 'worker'],
+    )
+
+    await click(chip())
+    assert.equal(chip().getAttribute('aria-pressed'), 'false')
+    assert.equal(queryAll(m.container, '.lc-agent-card').length, 3)
+
+    await m.unmount()
+  })
+
   test('the current card goes green once its own session stops running', async () => {
     const idle = family() as { root: { running: boolean } }
     idle.root.running = false
